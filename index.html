@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Angular-datetime-scroller.js : A directive of date and time scroller for AngularJS">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Angular-datetime-scroller.js</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/michihiro/angular-datetime-scroller.js">View on GitHub</a>
+
+          <h1 id="project_title">Angular-datetime-scroller.js</h1>
+          <h2 id="project_tagline">A directive of date and time scroller for AngularJS</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/michihiro/angular-datetime-scroller.js/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/michihiro/angular-datetime-scroller.js/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a name="requirements" class="anchor" href="#requirements"><span class="octicon octicon-link"></span></a>Requirements</h1>
+
+<ul>
+<li>
+<a href="https://angularjs.org/">AngularJS</a> 1.2</li>
+<li>
+<a href="http://jquery.com/">jQuery</a> 1.11/2.0</li>
+<li><a href="http://momentjs.com/">Moment.js</a></li>
+<li>
+<a href="http://hammerjs.github.io/">Hammer.js</a> 2.0</li>
+<li><a href="http://monospaced.github.io/hamster.js/">Hamster.js</a></li>
+</ul><h1>
+<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h1>
+
+<p>Attach the stylesheet and the scripts to your page.</p>
+
+<pre><code>  &lt;link href="css/mm-datetime-scroller.min.css" rel="stylesheet"&gt;
+  &lt;script src="js/jquery.min.js"&gt;&lt;/script&gt;
+  &lt;script src="js/angular.min.js"&gt;&lt;/script&gt;
+  &lt;script src="js/moment.min.js"&gt;&lt;/script&gt;
+  &lt;script src="js/hammer.min.js"&gt;&lt;/script&gt;
+  &lt;script src="js/hamster.js"&gt;&lt;/script&gt;
+  &lt;script src="js/mm-datetimescroller.min.js"&gt;&lt;/script&gt;
+</code></pre>
+
+<p>You can put an element that has mm-datetime attribute, and use from your controller.</p>
+
+<pre><code>&lt;div ng-controll="yourCtrl"&gt;
+
+  &lt;div mm-datetime="datetime" option="{
+    datetime: datetime,
+    formats: ['MM/D(ddd)', '', 'HH', ':' 'mm'],
+  }"&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;script&gt;
+
+  angular.module('your-app', ['mm-datetime']);
+
+  angular.controller('yourCtrl', ['$scope', 
+    function($scope) {
+
+      $scope.datetime = new Date(); // or Date.now()
+
+      $scope.$watch('datetime', function() {
+
+        ...
+
+      });
+    }
+  ]);
+&lt;/script&gt;
+</code></pre>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Angular-datetime-scroller.js maintained by <a href="https://github.com/michihiro">michihiro</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
