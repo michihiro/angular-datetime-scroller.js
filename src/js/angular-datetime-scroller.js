@@ -14,11 +14,12 @@ angular
 mmDatetime.$inject = ['$timeout', '$compile'];
 function mmDatetime($timeout, $compile) {
   var defaultOpt = {
+    formats: ['ll','','HH',':','mm'],
     minTime: -8640000000000000,
     maxTime: 8640000000000000,
-    loop: true,
     applyInterval: undefined,
     showButton: undefined,
+    tooltip: false,
     lang: 'en'
   };
   return {
@@ -92,14 +93,9 @@ function mmDatetime($timeout, $compile) {
     }
 
     function adjustTime(t) {
-       var opt = $scope.opt || {};
-       if(opt.minTime !== undefined && t < +opt.minTime) {
-         return +opt.minTime;
-       }
-       if(opt.maxTime !== undefined && t > +opt.maxTime) {
-         return +opt.maxTime;
-       }
-       return +t;
+      var opt = $scope._opt;
+      return t < +opt.minTime ? +opt.minTime :
+             t > +opt.maxTime ? +opt.maxTime : +t;
     }
 
     function setTooltip(o) {
@@ -111,16 +107,16 @@ function mmDatetime($timeout, $compile) {
 
   function link(scope, elem, attr, ctrl) {
 
-    scope.$watch('[time, opt.min, opt.max]', function() {
-      scope._time = ctrl.adjustTime(scope.time);
-    }, true);
-
     scope.$watch('opt', function() {
       scope._opt = angular.extend({}, defaultOpt, scope.opt);
     }, true);
 
-    scope.$watch('opt.format', function() {
-      var formats = [].concat(scope.opt.formats);
+    scope.$watch('[time, opt.minTime, opt.maxTime]', function() {
+      scope._time = ctrl.adjustTime(scope.time || Date.now());
+    }, true);
+
+    scope.$watch('opt.formats', function() {
+      var formats = [].concat(scope._opt.formats);
 
       elem.empty();
       formats.forEach(function(v) {
@@ -129,8 +125,8 @@ function mmDatetime($timeout, $compile) {
         if(!v || !v.length) {
           child.html('&nbsp;');
         } else {
-          s1 = moment().format(v);
-          s2 = moment().add({y:1,M:1,d:1,h:1,m:1,s:1,ms:1}).format(v);
+          s1 = moment(0).format(v);
+          s2 = moment(0).add({y:1,M:1,d:1,h:1,m:1,s:1,ms:1}).format(v);
           if(s1 === s2) {
             child.text(v);
           } else {
