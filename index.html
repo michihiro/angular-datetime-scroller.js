@@ -38,7 +38,7 @@
 <li>
 <a href="https://angularjs.org/">AngularJS</a> 1.2</li>
 <li>
-<a href="http://jquery.com/">jQuery</a> 1.11/2.0</li>
+<a href="http://jquery.com/">jQuery</a> 1.11/2.1</li>
 <li><a href="http://momentjs.com/">Moment.js</a></li>
 <li>
 <a href="http://hammerjs.github.io/">Hammer.js</a> 2.0</li>
@@ -48,13 +48,13 @@
 
 <p>Attach the stylesheet and the scripts to your page.</p>
 
-<pre><code>  &lt;link href="css/mm-datetime-scroller.min.css" rel="stylesheet"&gt;
+<pre><code>  &lt;link href="css/angular-datetime-scroller.min.css" rel="stylesheet"&gt;
   &lt;script src="js/jquery.min.js"&gt;&lt;/script&gt;
   &lt;script src="js/angular.min.js"&gt;&lt;/script&gt;
   &lt;script src="js/moment.min.js"&gt;&lt;/script&gt;
   &lt;script src="js/hammer.min.js"&gt;&lt;/script&gt;
   &lt;script src="js/hamster.js"&gt;&lt;/script&gt;
-  &lt;script src="js/mm-datetimescroller.min.js"&gt;&lt;/script&gt;
+  &lt;script src="js/angular-datetime-scroller.min.js"&gt;&lt;/script&gt;
 </code></pre>
 
 <p>You can put an element that has mm-datetime attribute, and use from your controller.</p>
@@ -62,17 +62,16 @@
 <pre><code>&lt;div ng-controll="yourCtrl"&gt;
 
   &lt;div mm-datetime="datetime" option="{
-    datetime: datetime,
-    formats: ['MM/D(ddd)', '', 'HH', ':' 'mm'],
+    formats: ['ll', '', 'HH', ':' 'mm'],
   }"&gt;&lt;/div&gt;
 
 &lt;/div&gt;
 &lt;script&gt;
 
-  angular.module('your-app', ['mm-datetime']);
+  angular.module('your-app', ['mm-datetime'])
+         .controller('yourCtrl', ['$scope', yourCtrl]);
 
-  angular.controller('yourCtrl', ['$scope', 
-    function($scope) {
+  function yourCtrl($scope) {
 
       $scope.datetime = new Date(); // or Date.now()
 
@@ -82,7 +81,6 @@
 
       });
     }
-  ]);
 &lt;/script&gt;
 </code></pre>
       </section>
