@@ -169,11 +169,11 @@ function mmDatetimeFormat($timeout, $interval, mmDatetimeService) {
     scope: {
       format: '=mmDatetimeFormat',
     },
-    template: '<div class="cr-datetime-frame" tabindex="0">'+
-              '<div class="cr-datetime-inner">'+
-              '<div class="label" style="color:transparent;position:relative">'+
+    template: '<div class="mm-datetime-frame" tabindex="0">'+
+              '<div class="mm-datetime-inner">'+
+              '<div class="mm-datetime-label" style="color:transparent;position:relative">'+
                 '{{str}}</div>' +
-              '<div class="label" ng-repeat="l in labels track by $index"' +
+              '<div class="mm-datetime-label" ng-repeat="l in labels track by $index"' +
                 ' ng-style="l.style">{{l.str}}</div>' +
               '</div>' +
               '</div>' +
@@ -188,7 +188,7 @@ function mmDatetimeFormat($timeout, $interval, mmDatetimeService) {
 
     angular.extend(scope, {
       labels: [],
-      inner: elem.find('.cr-datetime-inner'),
+      inner: elem.find('.mm-datetime-inner'),
       _moveBy: _moveBy,
       _startMoveByTimer: _startMoveByTimer,
       _stopMoveByTimer: _stopMoveByTimer,
@@ -225,7 +225,7 @@ function mmDatetimeFormat($timeout, $interval, mmDatetimeService) {
       var mo = moment(ctrl.getTime());
       mo.add(scope._interval, delta);
       if(ctrl.setTime(+mo) !== +mo) {
-        elem.addClass(delta > 0 ? 'bounceUp' : 'bounceDown');
+        elem.addClass(delta > 0 ? 'bounce-up' : 'bounce-down');
       }
     }
 
@@ -254,7 +254,7 @@ function mmDatetimeFormat($timeout, $interval, mmDatetimeService) {
       });
 
       $timeout(function() {
-        var lab = elem.find('.label');
+        var lab = elem.find('.mm-datetime-label');
         scope._labelHeight = lab.height();
         scope._labelWidth = lab.width();
         _setLabels();
@@ -268,7 +268,7 @@ function mmDatetimeFormat($timeout, $interval, mmDatetimeService) {
           labs = scope.labels,
           tx = 0, str, pos;
 
-      elem.removeClass('bounceUp bounceDown');
+      elem.removeClass('bounce-up bounce-down');
       mo.lang(lang);
       str = mo.format(scope.format);
 
@@ -432,7 +432,7 @@ function mmDatetimeService($timeout, $interval, $window) {
                deltaY < -0.5 ? ((deltaY - 0.5) | 0) : 0;
       mo.add(scope._interval, - deltaY);
       if(ctrl.setTime(+mo) !== +mo) {
-        elem.addClass(deltaY < 0 ? 'bounceUp' : 'bounceDown');
+        elem.addClass(deltaY < 0 ? 'bounce-up' : 'bounce-down');
       }
 
       var off = elem.offset();
@@ -445,7 +445,7 @@ function mmDatetimeService($timeout, $interval, $window) {
     })
     .on('tap', function() {
       // for keydown (Firefox)
-      elem.find('.cr-datetime-frame').focus();
+      elem.find('.mm-datetime-frame').focus();
     });
 
     scope.$on('$destory', function() {
