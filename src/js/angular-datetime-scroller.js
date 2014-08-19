@@ -403,10 +403,11 @@ function mmDatetimeService($timeout, $interval, $window) {
   function detectMouse(scope, elem, attr, ctrl) {
     var showButtons = ctrl.getOpt('showButtons');
 
-    if(showButtons !== false) {
+    if(showButtons === true) {
       elem.addClass('hover');
-    }
-    if(showButtons !== true) {
+    } else if(showButtons === false) {
+      _setOnHover();
+    } else {
       $($window).on('touchstart mousemove', _onDetect);
     }
 
