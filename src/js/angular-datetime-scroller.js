@@ -126,16 +126,19 @@ function mmDatetime($timeout, $compile) {
     scope.$watch('opt.formats', function() {
       var formats = [].concat(scope._opt.formats);
 
+      if(scope._formats && scope._formats.toString() === formats.toString()) {
+        return;
+      }
+      scope._formats = formats;
+
       elem.empty();
       formats.forEach(function(v) {
-        var child = $('<div></div>').appendTo(elem), s1, s2;
+        var child = $('<div></div>').appendTo(elem);
         v = v.replace(/(^\s+|\s+$)/g, '');
         if(!v || !v.length) {
           child.html('&nbsp;');
         } else {
-          s1 = moment(0).format(v);
-          s2 = moment(0).add({y:1,M:1,d:1,h:1,m:1,s:1,ms:1}).format(v);
-          if(s1 === s2) {
+          if(moment(0).format(v) === v) {
             child.text(v);
           } else {
             child.attr('mm-datetime-format', '\''+v+'\'');
