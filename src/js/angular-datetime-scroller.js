@@ -42,6 +42,7 @@ function mmDatetime($timeout, $compile) {
       getOpt: getOpt,
       watch: watch,
       adjustTime: adjustTime,
+      isValidTime: isValidTime,
       setTooltip: setTooltip
     });
 
@@ -51,18 +52,16 @@ function mmDatetime($timeout, $compile) {
       return $scope._time;
     }
     function setTime (time, scope) {
-      var timeAdj = adjustTime(time),
-          applyInterval = parseInt(getOpt('applyInterval'), 10);
-      if(timeAdj !== time) {
-        return timeAdj;
-      }
+      var applyInterval = parseInt(getOpt('applyInterval'), 10);
+
+      time = adjustTime(time);
 
       $timeout(function() {
         $scope._time = time;
 
         if(!$scope._applyTimer) {
           _assignTime($scope._time);
-            if(applyInterval > 0) {
+          if(applyInterval > 0) {
             $scope._applyTimer = $timeout(function() {
               $scope._applyTimer = null;
               if($scope._timeAssigned !== $scope._time) {
@@ -72,8 +71,6 @@ function mmDatetime($timeout, $compile) {
           }
         }
       });
-
-     return time;
     }
 
     function _assignTime(time) {
@@ -98,6 +95,15 @@ function mmDatetime($timeout, $compile) {
       var opt = $scope._opt;
       return t < +opt.minTime ? +opt.minTime :
              t > +opt.maxTime ? +opt.maxTime : +t;
+    }
+
+    function isValidTime(t, interval) {
+      var opt = $scope._opt,
+          min = moment(+opt.minTime).startOf(interval),
+          max = moment(+opt.maxTime).endOf(interval);
+      min = min.isValid() ? min : moment(+opt.minTime);
+      max = max.isValid() ? max : moment(+opt.maxTime);
+      return t >= +min && t <= +max;
     }
 
     function setTooltip(o) {
@@ -228,7 +234,10 @@ function mmDatetimeFormat($timeout, $interval, mmDatetimeService) {
     function _moveBy(delta) {
       var mo = moment(ctrl.getTime());
       mo.add(scope._interval, delta);
-      if(ctrl.setTime(+mo) !== +mo) {
+
+      if(ctrl.isValidTime(+mo, scope._interval)) {
+        ctrl.setTime(+mo);
+      } else {
         elem.addClass(delta > 0 ? 'bounce-up' : 'bounce-down');
       }
     }
@@ -321,7 +330,7 @@ function mmDatetimeFormat($timeout, $interval, mmDatetimeService) {
         mo.add(scope._interval, i);
         str = mo.format(scope.format);
         time = +mo;
-        valid = (ctrl.adjustTime(time + diff) === time + diff);
+        valid = ctrl.isValidTime(time, scope._interval);
 
         labels[i + HIDDEN_LABELS] = angular.extend(
           labels[i + HIDDEN_LABELS] || {},
@@ -348,6 +357,7 @@ function mmDatetimeFormat($timeout, $interval, mmDatetimeService) {
 
       return mo;
     }
+
  }
 }
 
@@ -443,7 +453,10 @@ function mmDatetimeService($timeout, $interval, $window) {
       deltaY = deltaY > 0.5 ? ((deltaY + 0.5) | 0) :
                deltaY < -0.5 ? ((deltaY - 0.5) | 0) : 0;
       mo.add(scope._interval, - deltaY);
-      if(ctrl.setTime(+mo) !== +mo) {
+
+      if(ctrl.isValidTime(+mo, scope._interval)) {
+        ctrl.setTime(+mo);
+      } else {
         elem.addClass(deltaY < 0 ? 'bounce-up' : 'bounce-down');
       }
 
