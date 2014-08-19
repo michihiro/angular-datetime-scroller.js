@@ -20,6 +20,8 @@ function mmDatetime($timeout, $compile) {
     applyInterval: undefined,
     showButton: undefined,
     tooltip: false,
+    readonly: false,
+    isUTC: false,
     lang: 'en'
   };
   return {
@@ -195,12 +197,14 @@ function mmDatetimeFormat($timeout, $interval, mmDatetimeService) {
       getBtnClass: getBtnClass
     });
 
-    mmDatetimeService
-      .detectMouse(scope, elem, attr, ctrl)
-      .setupTouchScroll(scope, elem, attr, ctrl)
-      .setupButtons(scope, elem, attr, ctrl)
-      .setupMouseWheel(scope, elem, attr, ctrl)
-      .setupKeyPress(scope, elem, attr, ctrl);
+    if(!ctrl.getOpt('readonly')) {
+      mmDatetimeService
+        .detectMouse(scope, elem, attr, ctrl)
+        .setupTouchScroll(scope, elem, attr, ctrl)
+        .setupButtons(scope, elem, attr, ctrl)
+        .setupMouseWheel(scope, elem, attr, ctrl)
+        .setupKeyPress(scope, elem, attr, ctrl);
+    }
 
     ctrl.watch('_time', _onChangeTime, true);
     ctrl.watch('opt', _setLabels, true);
@@ -237,12 +241,12 @@ function mmDatetimeFormat($timeout, $interval, mmDatetimeService) {
     function _onChangeFormat() {
       var time = ctrl.getTime() || Date.now(),
           lang = ctrl.getOpt('lang'),
+          isUTC = ctrl.getOpt('isUTC'),
           format = scope.format;
 
       INTERVAL_FORMATS.some(function(v) {
         var  mo1, mo2;
-        mo1 = moment(time);
-        mo1.lang(lang);
+        mo1 = _momentWith(time, lang, isUTC);
         mo2 = mo1.clone();
         mo1.startOf(v);
         mo2.endOf(v);
@@ -264,13 +268,13 @@ function mmDatetimeFormat($timeout, $interval, mmDatetimeService) {
     function _onChangeTime() {
       var time = ctrl.getTime(),
           lang = ctrl.getOpt('lang'),
-          mo = moment(time),
+          isUTC = ctrl.getOpt('isUTC'),
+          mo = _momentWith(time, lang, isUTC),
+          str = mo.format(scope.format),
           labs = scope.labels,
-          tx = 0, str, pos;
+          tx = 0, pos;
 
       elem.removeClass('bounce-up bounce-down');
-      mo.lang(lang);
-      str = mo.format(scope.format);
 
       if(scope.time && scope.str !== str) {
         if(time >= labs[0].time && time <= labs[labs.length - 1].time) {
@@ -299,22 +303,22 @@ function mmDatetimeFormat($timeout, $interval, mmDatetimeService) {
 
     function _setLabels() {
       var lang = ctrl.getOpt('lang'),
+          isUTC = ctrl.getOpt('isUTC'),
           labels = scope.labels,
           mo, timeCurrent, time, i, str, diff, valid;
 
       scope._setLabelsTimer = null;
 
       timeCurrent = ctrl.getTime();
-      mo = moment(timeCurrent);
+      mo = _momentWith(timeCurrent, lang, isUTC);
       mo.startOf(scope._interval);
       diff = timeCurrent - +mo;
       timeCurrent = +mo;
       scope.time = timeCurrent;
 
       for(i = - HIDDEN_LABELS; i < HIDDEN_LABELS; i++) {
-        mo = moment(timeCurrent);
+        mo = _momentWith(timeCurrent, lang, isUTC);
         mo.add(scope._interval, i);
-        mo.lang(lang);
         str = mo.format(scope.format);
         time = +mo;
         valid = (ctrl.adjustTime(time + diff) === time + diff);
@@ -335,6 +339,14 @@ function mmDatetimeFormat($timeout, $interval, mmDatetimeService) {
         transition: 'none',
         transform: 'translateY(0)'
       });
+    }
+
+    function _momentWith(time, lang, isUTC) {
+      var mo = moment(time);
+      mo.lang(lang);
+      if(isUTC) { mo.utc(); }
+
+      return mo;
     }
  }
 }
