@@ -150,7 +150,7 @@ function mmDatetime($timeout, $compile) {
       }
     });
 
-    scope.$on('destroy', function() {
+    elem.on('$destroy', function() {
       if(scope.tooltipElem) {
         scope.tooltipElem.remove();
       }
@@ -448,7 +448,7 @@ function mmDatetimeService($timeout, $interval, $window) {
       elem.find('.mm-datetime-frame').focus();
     });
 
-    scope.$on('$destory', function() {
+    elem.on('$destroy', function() {
       scope._mc.destroy();
       scope._mc = null;
     });
@@ -474,9 +474,9 @@ function mmDatetimeService($timeout, $interval, $window) {
       });
     });
 
-    scope.$on('$destory', function() {
-      scope._mcBtns.each(function() {
-        this.destroy();
+    elem.on('$destroy', function() {
+      scope._mcBtns.forEach(function(v) {
+        v.destroy();
       });
       scope._mcBtns = null;
     });
@@ -520,7 +520,7 @@ function mmDatetimeService($timeout, $interval, $window) {
 
     hs.wheel(_onWheel);
 
-    scope.$on('$destory', function() {
+    elem.on('$destroy', function() {
       scope._hs.unwheel(_onWheel);
       scope._hs = null;
     });
@@ -563,7 +563,8 @@ function mmDatetimeService($timeout, $interval, $window) {
     }
 
     elem.on('keydown', _onKeydown);
-    scope.$on('$destory', function() {
+
+    elem.on('$destroy', function() {
       elem.off('keydown', _onKeydown);
     });
     return this;
