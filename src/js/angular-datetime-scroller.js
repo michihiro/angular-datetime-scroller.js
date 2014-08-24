@@ -4,6 +4,10 @@
 (function() {
 'use strict';
 
+var BOUNCE_UP = 'mm-datetime-bounce-up';
+var BOUNCE_DOWN = 'mm-datetime-bounce-down';
+var BOUNCES = [BOUNCE_UP, BOUNCE_DOWN].join(' ');
+
 angular
   .module('mm-datetime-scroller', [])
   .directive('mmDatetime', mmDatetime)
@@ -134,6 +138,7 @@ function mmDatetime($timeout, $compile) {
       elem.empty();
       formats.forEach(function(v) {
         var child = $('<div></div>').appendTo(elem);
+
         v = v.replace(/(^\s+|\s+$)/g, '');
         if(!v || !v.length) {
           child.html('&nbsp;');
@@ -234,14 +239,15 @@ function mmDatetimeFormat($timeout, $interval, mmDatetimeService) {
       scope._pressTimer = null;
     }
 
-    function _moveBy(delta) {
-      var mo = moment(ctrl.getTime());
+    function _moveBy(delta, t) {
+      var mo = moment(t || ctrl.getTime());
       mo.add(scope._interval, delta);
 
       if(ctrl.isValidTime(+mo, scope._interval)) {
         ctrl.setTime(+mo);
       } else {
-        elem.addClass(delta > 0 ? 'bounce-up' : 'bounce-down');
+        elem.removeClass(BOUNCES)
+            .addClass(delta > 0 ? BOUNCE_UP : BOUNCE_DOWN);
       }
     }
 
@@ -286,7 +292,7 @@ function mmDatetimeFormat($timeout, $interval, mmDatetimeService) {
           labs = scope.labels,
           tx = 0, pos;
 
-      elem.removeClass('bounce-up bounce-down');
+      elem.removeClass(BOUNCES);
 
       if(scope.time && scope.str !== str) {
         if(time >= labs[0].time && time <= labs[labs.length - 1].time) {
@@ -371,22 +377,10 @@ function mmDatetimeTooltip($timeout) {
     scope: {
      tt: '=mmDatetimeTooltip'
     },
-    template: '<div ng-show="tt.show" ng-style="_style">'+
+    template: '<div ng-show="tt.show" ng-style="tt.style">'+
               '{{tt.str}}</div>',
-    replace: true,
-    link: link
+    replace: true
   };
-
-  function link(scope, elem, attr, ctrl) {
-    scope.$watch('tt', function() {
-      $timeout(function() {
-        var tt = scope.tt || {};
-        scope._style = {
-          left: tt.left - elem.width(), top: tt.top
-        };
-      });
-    });
-  }
 }
 
 mmDatetimeService.$inject = ['$timeout', '$interval', '$window'];
@@ -453,21 +447,19 @@ function mmDatetimeService($timeout, $interval, $window) {
         return;
       }
       var mo = moment(scope._timeAtDragStart),
-          deltaY = (ev.deltaY / scope._labelHeight);
-      deltaY = deltaY > 0.5 ? ((deltaY + 0.5) | 0) :
-               deltaY < -0.5 ? ((deltaY - 0.5) | 0) : 0;
-      mo.add(scope._interval, - deltaY);
+          delta = (-ev.deltaY / scope._labelHeight);
 
-      if(ctrl.isValidTime(+mo, scope._interval)) {
-        ctrl.setTime(+mo);
-      } else {
-        elem.addClass(deltaY < 0 ? 'bounce-up' : 'bounce-down');
-      }
+      delta = delta > 0.5 ? ((delta + 0.5) | 0) :
+               delta < -0.5 ? ((delta - 0.5) | 0) : 0;
+      scope._moveBy(delta, scope._timeAtDragStart);
 
       var off = elem.offset();
       ctrl.setTooltip({
-        top: off.top,
-        left: off.left,
+        style : {
+          top: off.top,
+          left: off.left - scope._labelWidth,
+          fontSize: elem.css('font-size'),
+        },
         str: scope.str,
         show: true
       });
@@ -477,8 +469,15 @@ function mmDatetimeService($timeout, $interval, $window) {
       elem.find('.mm-datetime-frame').focus();
     });
 
+    elem.on('touchstart mousedown', _preventDafault);
+
+    function _preventDafault(ev) {
+      ev.preventDefault();
+    }
+
     elem.on('$destroy', function() {
       scope._mc.destroy();
+      $(scope._mc.element).off(_preventDafault);
       scope._mc = null;
     });
 
@@ -488,11 +487,13 @@ function mmDatetimeService($timeout, $interval, $window) {
 
   function setupButtons(scope, elem, attr, ctrl) {
     var mcBtns = [];
+
     elem.find('button').each(function(index) {
       mcBtns[index] = new Hammer.Manager(this, {
         recognizers: [[Hammer.Tap],[Hammer.Press]]
       })
       .on('tap', function(ev) {
+        scope._stopMoveByTimer();
         scope._moveBy($(ev.target).data('delta'));
       })
       .on('press', function(ev) {
