@@ -43,6 +43,7 @@ function mmDatetime($timeout, $compile) {
     angular.extend(this, {
       getTime: getTime,
       setTime: setTime,
+      isInternalChange: isInternalChange,
       getOpt: getOpt,
       watch: watch,
       adjustTime: adjustTime,
@@ -55,13 +56,14 @@ function mmDatetime($timeout, $compile) {
     function getTime() {
       return $scope._time;
     }
+
     function setTime (time, scope) {
       var applyInterval = parseInt(getOpt('applyInterval'), 10);
 
       time = adjustTime(time);
 
       $timeout(function() {
-        $scope._time = time;
+        $scope._time = $scope._timeSet = time;
 
         if(!$scope._applyTimer) {
           _assignTime($scope._time);
@@ -75,6 +77,10 @@ function mmDatetime($timeout, $compile) {
           }
         }
       });
+    }
+
+    function isInternalChange() {
+       return $scope._timeSet === +$scope.time;
     }
 
     function _assignTime(time) {
@@ -208,6 +214,7 @@ function mmDatetimeFormat($timeout, $interval, mmDatetimeService) {
       _moveBy: _moveBy,
       _startMoveByTimer: _startMoveByTimer,
       _stopMoveByTimer: _stopMoveByTimer,
+      _checkLabelSize: _checkLabelSize,
       getBtnClass: getBtnClass
     });
 
@@ -276,11 +283,15 @@ function mmDatetimeFormat($timeout, $interval, mmDatetimeService) {
       });
 
       $timeout(function() {
-        var lab = elem.find('.mm-datetime-label');
-        scope._labelHeight = lab.height();
-        scope._labelWidth = lab.width();
+        scope._checkLabelSize();
         _setLabels();
       });
+    }
+
+    function _checkLabelSize() {
+      var lab = elem.find('.mm-datetime-label');
+      scope._labelHeight = lab.height();
+      scope._labelWidth = lab.width();
     }
 
     function _onChangeTime() {
@@ -293,8 +304,9 @@ function mmDatetimeFormat($timeout, $interval, mmDatetimeService) {
           tx = 0, pos;
 
       elem.removeClass(BOUNCES);
+      _checkLabelSize();
 
-      if(scope.time && scope.str !== str) {
+      if(ctrl.isInternalChange() && scope.time && scope.str !== str) {
         if(time >= labs[0].time && time <= labs[labs.length - 1].time) {
           for(pos = 0; pos < HIDDEN_LABELS * 2; pos++) {
             if(labs[pos].time > time) {
@@ -305,8 +317,7 @@ function mmDatetimeFormat($timeout, $interval, mmDatetimeService) {
           scope.inner.css({
             transition: 'all 150ms ease',
             transform: 'translateY('+
-                        (scope._labelHeight * (HIDDEN_LABELS - pos + 1)) +
-                       'px)',
+                       (HIDDEN_LABELS - pos + 1) + 'em)',
           });
           tx = 150;
         }
@@ -326,6 +337,7 @@ function mmDatetimeFormat($timeout, $interval, mmDatetimeService) {
           mo, timeCurrent, time, i, str, diff, valid;
 
       scope._setLabelsTimer = null;
+      _checkLabelSize();
 
       timeCurrent = ctrl.getTime();
       mo = _momentWith(timeCurrent, lang, isUTC);
@@ -348,7 +360,8 @@ function mmDatetimeFormat($timeout, $interval, mmDatetimeService) {
             valid: valid,
             style: {
               opacity: valid ? 1 : 0.2,
-              top: (scope._labelHeight * i) + 'px'
+              //top: (scope._labelHeight * i) + 'px'
+              top: i + 'em',
             }
           }
         );
@@ -431,6 +444,7 @@ function mmDatetimeService($timeout, $interval, $window) {
     });
 
     mc.on('panstart', function(ev) {
+      scope._checkLabelSize();
       elem.addClass('pan');
       scope._stopMoveByTimer();
       scope._timeAtDragStart = ctrl.getTime();
@@ -530,7 +544,7 @@ function mmDatetimeService($timeout, $interval, $window) {
       var now = Date.now();
       ev.preventDefault();
       ev.stopPropagation();
-      if(scope._lastWheel + 200 > now) {
+      if(scope._lastWheel + 100 > now) {
         return;
       }
       scope._lastWheel = now;

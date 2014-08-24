@@ -42,6 +42,15 @@ module.exports = function(grunt) {
             }
         },
 
+        // Lint css
+        csslint: {
+            options: {
+                'unqualified-attributes': false,
+                'overqualified-elements': false
+            },
+            files: ['<%= dirs.css %>/angular-datetime-scroller.css']
+        },
+
         // Minify css
         cssmin: {
             options: {
@@ -60,6 +69,6 @@ module.exports = function(grunt) {
     // --------------------------
 
     // Observe changes, concatenate, minify and validate files
-    grunt.registerTask('default', ['jshint', 'uglify', 'cssmin']);
+    grunt.registerTask('default', ['jshint', 'uglify', 'csslint', 'cssmin']);
 
 };
