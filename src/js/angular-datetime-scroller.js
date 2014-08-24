@@ -12,7 +12,6 @@ angular
   .module('mm-datetime-scroller', [])
   .directive('mmDatetime', mmDatetime)
   .directive('mmDatetimeFormat', mmDatetimeFormat)
-  .directive('mmDatetimeTooltip', mmDatetimeTooltip)
   .service('mmDatetimeService', mmDatetimeService);
 
 mmDatetime.$inject = ['$timeout', '$compile'];
@@ -161,8 +160,10 @@ function mmDatetime($timeout, $compile) {
 
     scope.$watch('opt.tooltip', function() {
       if(scope._opt.tooltip === true) {
-        scope.toolTop = {};
-        var bindFn =$compile('<div mm-datetime-tooltip="tooltip" />');
+        scope.tooltip = {};
+        var bindFn = $compile(
+          '<div class="mm-datetime-tooltip" ng-show="tooltip.show" ng-style="tooltip.style">'+
+          '{{tooltip.str}}</div>');
         scope.tooltipElem = bindFn(scope).appendTo('body');
       } else {
         if(scope.tooltipElem) {
@@ -381,19 +382,6 @@ function mmDatetimeFormat($timeout, $interval, mmDatetimeService) {
     }
 
  }
-}
-
-mmDatetimeTooltip.$inject = ['$timeout'];
-function mmDatetimeTooltip($timeout) {
-  return {
-    restrict: 'A',
-    scope: {
-     tt: '=mmDatetimeTooltip'
-    },
-    template: '<div ng-show="tt.show" ng-style="tt.style">'+
-              '{{tt.str}}</div>',
-    replace: true
-  };
 }
 
 mmDatetimeService.$inject = ['$timeout', '$interval', '$window'];

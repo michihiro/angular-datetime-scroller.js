@@ -131,7 +131,7 @@
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 
   border-width: 0;
-  background:rgba(204, 204, 204, 0.95);
+  background: rgba(204, 204, 204, .95);
   text-shadow: 1px 1px 0 rgba(255,255,255,1);
 }
 [mm-datetime-format] button:focus {
@@ -183,7 +183,7 @@
   bottom:0;
 }
 
-[mm-datetime-tooltip] {
+.mm-datetime-tooltip {
   position: absolute;
   z-index: 1000;
   padding: .1em .2em;
@@ -193,7 +193,7 @@
   box-shadow: 4px 4px 4px 0 rgba(0, 0, 0, .1);
   transform: translate(-.5em, -1.5em);
 }
-[mm-datetime-tooltip]:before {
+.mm-datetime-tooltip:before {
   content: '';
   position: absolute;
 

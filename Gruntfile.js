@@ -46,7 +46,8 @@ module.exports = function(grunt) {
         csslint: {
             options: {
                 'unqualified-attributes': false,
-                'overqualified-elements': false
+                'overqualified-elements': false,
+                'fallback-colors': false
             },
             files: ['<%= dirs.css %>/angular-datetime-scroller.css']
         },
